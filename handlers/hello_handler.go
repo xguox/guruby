@@ -1,15 +1,25 @@
 package handlers
 
 import (
-	"context"
 	"guruby/protos"
+	"io"
 	"log"
 )
 
-type Server struct {
-}
+type Server struct{}
 
-func (s *Server) SayHello(ctx context.Context, in *protos.PingMsg) (*protos.PingMsg, error) {
-	log.Printf("Receive msg %s", in.Greeting)
-	return &protos.PingMsg{Greeting: "fuji"}, nil
+func (s *Server) Chewing(stream protos.Chat_ChewingServer) error {
+	log.Println("Chewing...")
+	for {
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Println(err.Error())
+			return err
+		}
+		log.Printf("[%s]: %s", msg.Sender, msg.Text)
+		stream.Send(&protos.Msg{Sender: "Sony", Receiver: "Fuji", Text: msg.Text + " is not FF !!!"})
+	}
 }

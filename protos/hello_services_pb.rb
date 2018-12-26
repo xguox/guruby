@@ -5,16 +5,16 @@ require 'grpc'
 require 'hello_pb'
 
 module Protos
-  module Ping
+  module Chat
     class Service
 
       include GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
-      self.service_name = 'protos.Ping'
+      self.service_name = 'protos.Chat'
 
-      rpc :SayHello, PingMsg, PingMsg
+      rpc :Chewing, stream(Msg), stream(Msg)
     end
 
     Stub = Service.rpc_stub_class

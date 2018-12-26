@@ -4,11 +4,13 @@
 require 'google/protobuf'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
-  add_message "protos.PingMsg" do
-    optional :greeting, :string, 1
+  add_message "protos.Msg" do
+    optional :sender, :string, 1
+    optional :receiver, :string, 2
+    optional :text, :string, 3
   end
 end
 
 module Protos
-  PingMsg = Google::Protobuf::DescriptorPool.generated_pool.lookup("protos.PingMsg").msgclass
+  Msg = Google::Protobuf::DescriptorPool.generated_pool.lookup("protos.Msg").msgclass
 end

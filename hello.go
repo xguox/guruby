@@ -1,6 +1,7 @@
 package main
 
 import (
+	"google.golang.org/grpc/reflection"
 	"guruby/handlers"
 	"guruby/protos"
 	"log"
@@ -18,7 +19,8 @@ func main() {
 	s := handlers.Server{}
 
 	grpcServer := grpc.NewServer()
-	protos.RegisterPingServer(grpcServer, &s)
+	protos.RegisterChatServer(grpcServer, &s)
+	reflection.Register(grpcServer)
 	log.Println("Running on tcp:8888")
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)

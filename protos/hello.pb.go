@@ -23,46 +23,62 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type PingMsg struct {
-	Greeting             string   `protobuf:"bytes,1,opt,name=greeting,proto3" json:"greeting,omitempty"`
+type Msg struct {
+	Sender               string   `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	Receiver             string   `protobuf:"bytes,2,opt,name=receiver,proto3" json:"receiver,omitempty"`
+	Text                 string   `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PingMsg) Reset()         { *m = PingMsg{} }
-func (m *PingMsg) String() string { return proto.CompactTextString(m) }
-func (*PingMsg) ProtoMessage()    {}
-func (*PingMsg) Descriptor() ([]byte, []int) {
-	return fileDescriptor_hello_ba42cac0c259e0b2, []int{0}
+func (m *Msg) Reset()         { *m = Msg{} }
+func (m *Msg) String() string { return proto.CompactTextString(m) }
+func (*Msg) ProtoMessage()    {}
+func (*Msg) Descriptor() ([]byte, []int) {
+	return fileDescriptor_hello_a63830eae10ef472, []int{0}
 }
-func (m *PingMsg) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PingMsg.Unmarshal(m, b)
+func (m *Msg) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Msg.Unmarshal(m, b)
 }
-func (m *PingMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PingMsg.Marshal(b, m, deterministic)
+func (m *Msg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Msg.Marshal(b, m, deterministic)
 }
-func (dst *PingMsg) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PingMsg.Merge(dst, src)
+func (dst *Msg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Msg.Merge(dst, src)
 }
-func (m *PingMsg) XXX_Size() int {
-	return xxx_messageInfo_PingMsg.Size(m)
+func (m *Msg) XXX_Size() int {
+	return xxx_messageInfo_Msg.Size(m)
 }
-func (m *PingMsg) XXX_DiscardUnknown() {
-	xxx_messageInfo_PingMsg.DiscardUnknown(m)
+func (m *Msg) XXX_DiscardUnknown() {
+	xxx_messageInfo_Msg.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PingMsg proto.InternalMessageInfo
+var xxx_messageInfo_Msg proto.InternalMessageInfo
 
-func (m *PingMsg) GetGreeting() string {
+func (m *Msg) GetSender() string {
 	if m != nil {
-		return m.Greeting
+		return m.Sender
+	}
+	return ""
+}
+
+func (m *Msg) GetReceiver() string {
+	if m != nil {
+		return m.Receiver
+	}
+	return ""
+}
+
+func (m *Msg) GetText() string {
+	if m != nil {
+		return m.Text
 	}
 	return ""
 }
 
 func init() {
-	proto.RegisterType((*PingMsg)(nil), "protos.PingMsg")
+	proto.RegisterType((*Msg)(nil), "protos.Msg")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -73,79 +89,113 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// PingClient is the client API for Ping service.
+// ChatClient is the client API for Chat service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type PingClient interface {
-	SayHello(ctx context.Context, in *PingMsg, opts ...grpc.CallOption) (*PingMsg, error)
+type ChatClient interface {
+	Chewing(ctx context.Context, opts ...grpc.CallOption) (Chat_ChewingClient, error)
 }
 
-type pingClient struct {
+type chatClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewPingClient(cc *grpc.ClientConn) PingClient {
-	return &pingClient{cc}
+func NewChatClient(cc *grpc.ClientConn) ChatClient {
+	return &chatClient{cc}
 }
 
-func (c *pingClient) SayHello(ctx context.Context, in *PingMsg, opts ...grpc.CallOption) (*PingMsg, error) {
-	out := new(PingMsg)
-	err := c.cc.Invoke(ctx, "/protos.Ping/SayHello", in, out, opts...)
+func (c *chatClient) Chewing(ctx context.Context, opts ...grpc.CallOption) (Chat_ChewingClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Chat_serviceDesc.Streams[0], "/protos.Chat/Chewing", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &chatChewingClient{stream}
+	return x, nil
 }
 
-// PingServer is the server API for Ping service.
-type PingServer interface {
-	SayHello(context.Context, *PingMsg) (*PingMsg, error)
+type Chat_ChewingClient interface {
+	Send(*Msg) error
+	Recv() (*Msg, error)
+	grpc.ClientStream
 }
 
-func RegisterPingServer(s *grpc.Server, srv PingServer) {
-	s.RegisterService(&_Ping_serviceDesc, srv)
+type chatChewingClient struct {
+	grpc.ClientStream
 }
 
-func _Ping_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingMsg)
-	if err := dec(in); err != nil {
+func (x *chatChewingClient) Send(m *Msg) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *chatChewingClient) Recv() (*Msg, error) {
+	m := new(Msg)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(PingServer).SayHello(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/protos.Ping/SayHello",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PingServer).SayHello(ctx, req.(*PingMsg))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
-var _Ping_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.Ping",
-	HandlerType: (*PingServer)(nil),
-	Methods: []grpc.MethodDesc{
+// ChatServer is the server API for Chat service.
+type ChatServer interface {
+	Chewing(Chat_ChewingServer) error
+}
+
+func RegisterChatServer(s *grpc.Server, srv ChatServer) {
+	s.RegisterService(&_Chat_serviceDesc, srv)
+}
+
+func _Chat_Chewing_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ChatServer).Chewing(&chatChewingServer{stream})
+}
+
+type Chat_ChewingServer interface {
+	Send(*Msg) error
+	Recv() (*Msg, error)
+	grpc.ServerStream
+}
+
+type chatChewingServer struct {
+	grpc.ServerStream
+}
+
+func (x *chatChewingServer) Send(m *Msg) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *chatChewingServer) Recv() (*Msg, error) {
+	m := new(Msg)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+var _Chat_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.Chat",
+	HandlerType: (*ChatServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "SayHello",
-			Handler:    _Ping_SayHello_Handler,
+			StreamName:    "Chewing",
+			Handler:       _Chat_Chewing_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "protos/hello.proto",
 }
 
-func init() { proto.RegisterFile("protos/hello.proto", fileDescriptor_hello_ba42cac0c259e0b2) }
+func init() { proto.RegisterFile("protos/hello.proto", fileDescriptor_hello_a63830eae10ef472) }
 
-var fileDescriptor_hello_ba42cac0c259e0b2 = []byte{
-	// 110 bytes of a gzipped FileDescriptorProto
+var fileDescriptor_hello_a63830eae10ef472 = []byte{
+	// 143 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2a, 0x28, 0xca, 0x2f,
 	0xc9, 0x2f, 0xd6, 0xcf, 0x48, 0xcd, 0xc9, 0xc9, 0xd7, 0x03, 0x73, 0x84, 0xd8, 0x20, 0x62, 0x4a,
-	0xaa, 0x5c, 0xec, 0x01, 0x99, 0x79, 0xe9, 0xbe, 0xc5, 0xe9, 0x42, 0x52, 0x5c, 0x1c, 0xe9, 0x45,
-	0xa9, 0xa9, 0x25, 0x99, 0x79, 0xe9, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x70, 0xbe, 0x91,
-	0x19, 0x17, 0x0b, 0x48, 0x99, 0x90, 0x1e, 0x17, 0x47, 0x70, 0x62, 0xa5, 0x07, 0xc8, 0x20, 0x21,
-	0x7e, 0x88, 0x51, 0xc5, 0x7a, 0x50, 0x03, 0xa4, 0xd0, 0x05, 0x94, 0x18, 0x92, 0x20, 0xd6, 0x18,
-	0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x35, 0x86, 0x55, 0xfb, 0x83, 0x00, 0x00, 0x00,
+	0xbe, 0x5c, 0xcc, 0xbe, 0xc5, 0xe9, 0x42, 0x62, 0x5c, 0x6c, 0xc5, 0xa9, 0x79, 0x29, 0xa9, 0x45,
+	0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x50, 0x9e, 0x90, 0x14, 0x17, 0x47, 0x51, 0x6a, 0x72,
+	0x6a, 0x66, 0x59, 0x6a, 0x91, 0x04, 0x13, 0x58, 0x06, 0xce, 0x17, 0x12, 0xe2, 0x62, 0x29, 0x49,
+	0xad, 0x28, 0x91, 0x60, 0x06, 0x8b, 0x83, 0xd9, 0x46, 0x86, 0x5c, 0x2c, 0xce, 0x19, 0x89, 0x25,
+	0x42, 0x9a, 0x5c, 0xec, 0xce, 0x19, 0xa9, 0xe5, 0x99, 0x79, 0xe9, 0x42, 0xdc, 0x10, 0x1b, 0x8b,
+	0xf5, 0x7c, 0x8b, 0xd3, 0xa5, 0x90, 0x39, 0x4a, 0x0c, 0x1a, 0x8c, 0x06, 0x8c, 0x49, 0x10, 0x97,
+	0x18, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xd2, 0xa4, 0xbc, 0x45, 0xa6, 0x00, 0x00, 0x00,
 }

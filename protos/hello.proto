@@ -1,10 +1,12 @@
 syntax = "proto3";
 package protos;
 
-message PingMsg {
-  string greeting = 1;
+message Msg {
+  string sender = 1;
+  string receiver = 2;
+  string text = 3;
 }
 
-service Ping {
-  rpc SayHello(PingMsg) returns (PingMsg) {}
+service Chat {
+  rpc Chewing(stream Msg) returns (stream Msg) {}
 }
